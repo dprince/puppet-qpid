@@ -14,6 +14,7 @@ class qpid::server(
   $auth = 'no',
   $realm = 'QPID',
   $log_to_file = 'UNSET',
+  $clustered = false,
   $cluster_mechanism = 'ANONYMOUS'
 ) {
 
@@ -27,19 +28,23 @@ class qpid::server(
     ensure => $package_ensure
   }
 
-  if $::operatingsystem == 'Fedora' {
-    $mechanism_option = 'ha-mechanism'
-    package {"qpid-cpp-server-ha":
-      ensure => installed,
+  if $clustered == true {
+    case $::operatingsystem {
+      fedora: {
+        $mechanism_option = 'ha-mechanism'
+        package {"qpid-cpp-server-ha":
+          ensure => installed,
+        }
+      }
+      default: {
+        $mechanism_option = 'cluster-mechanism'
+        package {"qpid-cpp-server-cluster":
+          ensure => installed,
+        }
+      }
     }
   }
-  else {
-    $mechanism_option = 'cluster-mechanism'
-    package {"qpid-cpp-server-cluster":
-      ensure => installed,
-    }
-  }
- 
+
   file { $config_file:
     ensure  => present,
     owner   => 'root',
