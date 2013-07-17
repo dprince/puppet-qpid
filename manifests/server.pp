@@ -4,7 +4,9 @@
 class qpid::server(
   $config_file = '/etc/qpidd.conf',
   $package_name = 'qpid-cpp-server',
+  $cluster_package_name = 'qpid-cpp-server-ha',
   $package_ensure = present,
+  $cluster_package_ensure = present,
   $service_name = 'qpidd',
   $service_ensure = running,
   $port = '5672',
@@ -14,7 +16,8 @@ class qpid::server(
   $auth = 'no',
   $realm = 'QPID',
   $log_to_file = 'UNSET',
-  $cluster_mechanism = 'ANONYMOUS'
+  $cluster_mechanism = 'ANONYMOUS',
+  $cluster_mechanism_option = 'ha-mechanism'
 ) {
 
   validate_re($port, '\d+')
@@ -27,19 +30,10 @@ class qpid::server(
     ensure => $package_ensure
   }
 
-  if $::operatingsystem == 'Fedora' {
-    $mechanism_option = 'ha-mechanism'
-    package {"qpid-cpp-server-ha":
-      ensure => installed,
-    }
+  package { $cluster_package_name:
+    ensure => $cluster_package_ensure
   }
-  else {
-    $mechanism_option = 'cluster-mechanism'
-    package {"qpid-cpp-server-cluster":
-      ensure => installed,
-    }
-  }
- 
+
   file { $config_file:
     ensure  => present,
     owner   => 'root',
