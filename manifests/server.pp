@@ -4,9 +4,12 @@
 class qpid::server(
   $config_file = '/etc/qpidd.conf',
   $package_name = 'qpid-cpp-server',
+  $cluster_package_name = 'qpid-cpp-server-ha',
   $package_ensure = present,
+  $cluster_package_ensure = present,
   $service_name = 'qpidd',
   $service_ensure = running,
+  $service_enable = true,
   $port = '5672',
   $max_connections = '500',
   $worker_threads = '17',
@@ -15,7 +18,8 @@ class qpid::server(
   $realm = 'QPID',
   $log_to_file = 'UNSET',
   $clustered = false,
-  $cluster_mechanism = 'ANONYMOUS'
+  $cluster_mechanism = 'ANONYMOUS',
+  $cluster_mechanism_option = 'ha-mechanism'
 ) {
 
   validate_re($port, '\d+')
@@ -29,19 +33,8 @@ class qpid::server(
   }
 
   if $clustered == true {
-    case $::operatingsystem {
-      fedora: {
-        $mechanism_option = 'ha-mechanism'
-        package {"qpid-cpp-server-ha":
-          ensure => installed,
-        }
-      }
-      default: {
-        $mechanism_option = 'cluster-mechanism'
-        package {"qpid-cpp-server-cluster":
-          ensure => installed,
-        }
-      }
+    package { $cluster_package_name:
+      ensure => $cluster_package_ensure
     }
   }
 
@@ -66,6 +59,7 @@ class qpid::server(
 
   service { $service_name:
     ensure => $service_ensure,
+    enable => $service_enable,
     subscribe => [Package[$package_name], File[$config_file]]
   }
 
