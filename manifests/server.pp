@@ -15,10 +15,20 @@ class qpid::server(
   $realm = 'QPID',
   $log_to_file = 'UNSET',
   $clustered = false,
-  $cluster_mechanism = 'ANONYMOUS'
+  $cluster_mechanism = 'ANONYMOUS',
+  $ssl = false,
+  $ssl_package_name = 'qpid-cpp-server-ssl',
+  $ssl_package_ensure = present,
+  $ssl_port = '5671',
+  $ssl_ca = '/etc/ipa/ca.crt',
+  $ssl_cert = undef,
+  $ssl_key = undef,
+  $ssl_database_password = undef,
+  $freeipa = false
 ) {
 
   validate_re($port, '\d+')
+  validate_re($ssl_port, '\d+')
   validate_re($max_connections, '\d+')
   validate_re($worker_threads, '\d+')
   validate_re($connection_backlog, '\d+')
@@ -52,6 +62,36 @@ class qpid::server(
     mode    => 644,
     content => template('qpid/qpidd.conf.erb'),
     subscribe => Package[$package_name]
+  }
+
+  if $ssl == true {
+    if $ssl_database_password == undef {
+      fail('ssl_database_passowrd must be set')
+    }
+    package { $ssl_package_name:
+      ensure => $ssl_package_ensure
+    }
+    nssdb::create {"qpidd":
+      owner_id => 'qpidd',
+      group_id => 'qpidd',
+      password => $ssl_database_password,
+      cacert => $ssl_ca,
+    }
+    if $freeipa == true {
+      certmonger::request_ipa_cert {"qpidd":
+        seclib => "nss",
+        nickname => "broker",
+        principal => "qpid/${fqdn}",
+      }
+    } elsif $ssl_cert != undef and $ssl_key != undef {
+      nssdb::add_cert_and_key{"qpidd":
+        nickname=> 'broker',
+        cert => $ssl_cert,
+        key  => $ssl_key,
+      }
+    } else {
+      fail('Missing cert or key')
+    }
   }
 
   if $log_to_file != 'UNSET' {

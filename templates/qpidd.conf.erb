@@ -17,3 +17,11 @@ realm=<%= realm %>
 <% if log_to_file != 'UNSET' %>
 log-to-file=<%= log_to_file %>
 <% end %>
+<% if ssl == true %>
+require-encryption=yes
+ssl-require-client-authentication=no
+ssl-cert-db=/etc/pki/qpidd
+ssl-cert-password-file=/etc/pki/qpidd/password.conf
+ssl-cert-name=broker
+ssl-port=<%= ssl_port %>
+<% end %>
