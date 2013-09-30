@@ -5,23 +5,23 @@
 #
 # (Note: no spaces on either side of '='). Using default settings:
 # "qpidd --help" or "man qpidd" for more details.
-port=<%= port %>
-max-connections=<%= max_connections %>
-worker-threads=<%= worker_threads %>
-connection-backlog=<%= connection_backlog %>
-auth=<%= auth %>
-realm=<%= realm %>
-<% if clustered == true %>
-<%= mechanism_option %>=<%= cluster_mechanism %>
+port=<%= @port %>
+max-connections=<%= @max_connections %>
+worker-threads=<%= @worker_threads %>
+connection-backlog=<%= @connection_backlog %>
+auth=<%= @auth %>
+realm=<%= @realm %>
+<% if @clustered == true %>
+<%= @mechanism_option %>=<%= @cluster_mechanism %>
 <% end %>
-<% if log_to_file != 'UNSET' %>
-log-to-file=<%= log_to_file %>
+<% if @log_to_file != 'UNSET' %>
+log-to-file=<%= @log_to_file %>
 <% end %>
-<% if ssl == true %>
+<% if @ssl == true %>
 require-encryption=yes
 ssl-require-client-authentication=no
 ssl-cert-db=/etc/pki/qpidd
 ssl-cert-password-file=/etc/pki/qpidd/password.conf
 ssl-cert-name=broker
-ssl-port=<%= ssl_port %>
+ssl-port=<%= @ssl_port %>
 <% end %>
