@@ -16,7 +16,12 @@ class qpid::server(
   $realm = 'QPID',
   $log_to_file = 'UNSET',
   $clustered = false,
+  $cluster_name = 'test_cluster',
   $cluster_mechanism = 'ANONYMOUS',
+  $cluster_bindnetaddr = '192.168.1.0',
+  $cluster_mcastaddr = '226.94.1.1',
+  $cluster_mcastport = '5405',
+  $cluster_config_file = '/etc/corosync/corosync.conf',
   $ssl = false,
   $ssl_package_name = 'qpid-cpp-server-ssl',
   $ssl_package_ensure = present,
@@ -46,13 +51,49 @@ class qpid::server(
         package {"qpid-cpp-server-ha":
           ensure => installed,
         }
+        file { $cluster_config_file:
+          ensure  => present,
+          owner   => 'root',
+          group   => 'root',
+          mode    => 644,
+          content => template('qpid/corosync.conf.erb'),
+          require => Package['qpid-cpp-server-ha']
+        }
+        service { 'corosync':
+          ensure    => $service_ensure,
+          enable    => $service_enable,
+          subscribe => File[$cluster_config_file]
+        }
       }
       default: {
         $mechanism_option = 'cluster-mechanism'
         package {"qpid-cpp-server-cluster":
           ensure => installed,
         }
+        file { $cluster_config_file:
+          ensure  => present,
+          owner   => 'root',
+          group   => 'root',
+          mode    => 644,
+          content => template('qpid/corosync.conf.erb'),
+          require => Package['qpid-cpp-server-cluster']
+        }
+        service { 'corosync':
+          ensure    => $service_ensure,
+          enable    => $service_enable,
+          subscribe => File[$cluster_config_file]
+        }
       }
+    }
+    firewall { '001 qpid-corosync udp':
+        proto    => 'udp',
+        dport    => ['5405', '50007'],
+        action   => 'accept',
+    }
+    firewall { '002 qpid-corosync tcp':
+        proto    => 'tcp',
+        dport    => ['5405', '8084', '11111', '14567', '16851', '21064', '50006', '50008', '50009'],
+        action   => 'accept',
     }
   }
 
