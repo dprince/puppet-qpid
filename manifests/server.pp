@@ -21,7 +21,6 @@ class qpid::server(
   $cluster_bindnetaddr = '192.168.1.0',
   $cluster_mcastaddr = '226.94.1.1',
   $cluster_mcastport = '5405',
-  $cluster_config_file = '/etc/corosync/corosync.conf',
   $ssl = false,
   $ssl_package_name = 'qpid-cpp-server-ssl',
   $ssl_package_ensure = present,
@@ -48,42 +47,22 @@ class qpid::server(
     case $::operatingsystem {
       fedora: {
         $mechanism_option = 'ha-mechanism'
-        package {"qpid-cpp-server-ha":
+        package { "qpid-cpp-server-ha":
           ensure => installed,
-        }
-        file { $cluster_config_file:
-          ensure  => present,
-          owner   => 'root',
-          group   => 'root',
-          mode    => 644,
-          content => template('qpid/corosync.conf.erb'),
-          require => Package['qpid-cpp-server-ha']
-        }
-        service { 'corosync':
-          ensure    => $service_ensure,
-          enable    => $service_enable,
-          subscribe => File[$cluster_config_file]
         }
       }
       default: {
         $mechanism_option = 'cluster-mechanism'
-        package {"qpid-cpp-server-cluster":
+        package { "qpid-cpp-server-cluster":
           ensure => installed,
         }
-        file { $cluster_config_file:
-          ensure  => present,
-          owner   => 'root',
-          group   => 'root',
-          mode    => 644,
-          content => template('qpid/corosync.conf.erb'),
-          require => Package['qpid-cpp-server-cluster']
-        }
-        service { 'corosync':
-          ensure    => $service_ensure,
-          enable    => $service_enable,
-          subscribe => File[$cluster_config_file]
-        }
       }
+    }
+    class { "corosync":
+      enable_secauth    => false,
+      bind_address      => $cluster_bindnetaddr,
+      multicast_address => $cluster_mcastaddr,
+      port              => $cluster_mcastport
     }
     firewall { '001 qpid-corosync udp':
         proto    => 'udp',
