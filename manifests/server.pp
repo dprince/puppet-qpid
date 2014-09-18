@@ -11,6 +11,7 @@ class qpid::server(
   $manage_service = true,
   $port = '5672',
   $max_connections = '65530',
+  $max_negotiate_time = 'UNSET',
   $worker_threads = '17',
   $connection_backlog = '10',
   $auth = 'no',
@@ -36,6 +37,7 @@ class qpid::server(
   validate_re($worker_threads, '\d+')
   validate_re($connection_backlog, '\d+')
   validate_re($auth, '^(yes$|no$)')
+  validate_re($max_negotiate_time, '\d+')
 
   package { $package_name:
     ensure => $package_ensure
