@@ -62,7 +62,7 @@ class qpid::server(
     ensure  => present,
     owner   => 'root',
     group   => 'root',
-    mode    => 644,
+    mode    => '0644',
     content => template('qpid/qpidd.conf.erb'),
     subscribe => Package[$package_name]
   }
@@ -115,7 +115,7 @@ class qpid::server(
       ensure  => present,
       owner => 'qpidd',
       group => 'qpidd',
-      mode => 644,
+      mode => '0644',
       require => Package[$package_name]
     }
 
