@@ -1,5 +1,5 @@
 {
-  "name": "dprince/qpid",
+  "name": "dprince-qpid",
   "version": "1.0.3",
   "author": "Dan Prince <dprince@redhat.com>",
   "summary": "Qpid Puppet Module",
