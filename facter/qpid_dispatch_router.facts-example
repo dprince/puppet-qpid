@@ -1,0 +1,37 @@
+#!/usr/bin/ruby
+# Example configuration
+facts = {
+  "qpid_dispatch_container_name" => " Qpid.Dispatch.Router.A",
+  "qpid_dispatch_worker_threads" => "4",
+  "qpid_dispatch_ssl_profile_name" => "ssl-profile-name",
+  "qpid_dispatch_listener_count" => "2",
+  "qpid_dispatch_listener_1_address" => "0.0.0.0",
+  "qpid_dispatch_listener_1_port" => "amqp",
+  "qpid_dispatch_listener_1_sasl_mechanisms" => "ANONYMOUS",
+  "qpid_dispatch_listener_2_role" => "inter-router",
+  "qpid_dispatch_listener_2_address" => "0.0.0.0",
+  "qpid_dispatch_listener_2_port" => "20100",
+  "qpid_dispatch_listener_2_sasl_mechanisms" => "ANONYMOUS",
+  "qpid_dispatch_connector_count" => "1",
+  "qpid_dispatch_connector_1_label" => "Router Uplink A",
+  "qpid_dispatch_connector_1_role" => "inter-router",
+  "qpid_dispatch_connector_1_address" => "0.0.0.0",
+  "qpid_dispatch_connector_1_port" => "20100",
+  "qpid_dispatch_connector_1_sasl_mechanisms" => "ANONYMOUS",
+  "qpid_dispatch_fixed_address_count" => "4",
+  "qpid_dispatch_fixed_address_1_prefix" => "/unicast",
+  "qpid_dispatch_fixed_address_1_fanout" => "single",
+  "qpid_dispatch_fixed_address_1_bias" => "spread",
+  "qpid_dispatch_fixed_address_2_prefix" => "/exclusive",
+  "qpid_dispatch_fixed_address_2_fanout" => "single",
+  "qpid_dispatch_fixed_address_2_bias" => "closest",
+  "qpid_dispatch_fixed_address_3_prefix" => "/broadcast",
+  "qpid_dispatch_fixed_address_3_fanout" => "multiple",
+  "qpid_dispatch_fixed_address_4_prefix" => "/",
+  "qpid_dispatch_fixed_address_4_fanout" => "multiple",
+  "qpid_dispatch_router_mode" => "interior",
+  "qpid_dispatch_router_id" => "Router.A",
+}
+
+facts.each_pair {|key,value| puts "#{key}=#{value}"}
+
